@@ -1,0 +1,31 @@
+IDI_ICON1 ICON DISCARDABLE "../../media/shift.ico"
+
+#include "global.h"
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  SIMS_VERSION_MAJOR,SIMS_VERSION_MINOR,SIMS_VERSION_PATCH
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",        "Shift IT Solution"
+            VALUE "FileDescription",    SIMS_APP_DISPLAY_NAME
+            VALUE "FileVersion",        "1.0.0.0"
+            VALUE "InternalName",       SIMS_APP_NAME
+            VALUE "LegalCopyright",     "©2017 Shift IT Solution"
+            VALUE "LegalTrademarks1",   "All Rights Reserved"
+            VALUE "LegalTrademarks2",   "All Rights Reserved"
+            VALUE "OriginalFilename",   "shift-ims.exe"
+            VALUE "ProductName",        SIMS_APP_DISPLAY_NAME
+            VALUE "ProductVersion",     SIMS_VERSION_STR
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
