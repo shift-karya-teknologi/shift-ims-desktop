@@ -1,1 +1,1 @@
-# shift-ims-admin
+# shift-ims-desktop
