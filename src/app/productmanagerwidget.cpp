@@ -19,6 +19,9 @@ ProductManagerWidget::ProductManagerWidget(QWidget *parent)
     _editorsTabWidget->setMovable(true);
     _editorsTabWidget->hide();
     connect(_editorsTabWidget, SIGNAL(tabCloseRequested(int)), SLOT(closeTab(int)));
+
+    setCollapsible(0, false);
+    setCollapsible(1, false);
 }
 
 bool ProductManagerWidget::closeTab(int index)
