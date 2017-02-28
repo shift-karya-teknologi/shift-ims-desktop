@@ -532,8 +532,6 @@ ProductEditor::ProductEditor(QWidget *parent)
 
     ui->priceTableView->installEventFilter(this);
     ui->priceTableView->setModel(priceModel);
-    for (int i = 0; i < priceModel->columnCount(); i++)
-        ui->priceTableView->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
 
     QBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
