@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlQuery>
 
 #include "global.h"
 #include "mainwindow.h"
@@ -13,6 +14,8 @@
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+
+    QLocale::setDefault(QLocale(QLocale::Indonesian, QLocale::Indonesia));
 
     app.setApplicationName(SIMS_APP_NAME);
     app.setApplicationDisplayName(SIMS_APP_DISPLAY_NAME);
@@ -56,13 +59,11 @@ int main(int argc, char **argv)
     {
         QSettings settings(SIMS_DEFAULT_SETTINGS_PATH, QSettings::IniFormat);
         QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-
-        db.setHostName(settings.value("Database/hostname").toString());
+        db.setHostName(settings.value("Database/hostName").toString());
         db.setPort(settings.value("Database/port").toInt());
-        db.setDatabaseName(settings.value("Database/schema").toString());
-        db.setUserName(settings.value("Database/username").toString());
+        db.setDatabaseName(settings.value("Database/databaseName").toString());
+        db.setUserName(settings.value("Database/userName").toString());
         db.setPassword(settings.value("Database/password").toString());
-
         if (!db.open()) {
             qCritical() << "Database connection failed:" << qPrintable(db.lastError().text());
             return 2;

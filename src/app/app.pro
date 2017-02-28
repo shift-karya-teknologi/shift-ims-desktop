@@ -6,11 +6,20 @@ RC_FILE = app.rc
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    productmanagerwidget.cpp \
+    producteditor.cpp \
+    product.cpp \
+    productlistwidget.cpp
 
 HEADERS += \
     global.h \
-    mainwindow.h
+    mainwindow.h \
+    productmanagerwidget.h \
+    producteditor.h \
+    product.h \
+    productlistwidget.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    producteditor.ui

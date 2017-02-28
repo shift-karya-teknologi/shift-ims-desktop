@@ -13,7 +13,9 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout"/>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -23,8 +25,20 @@
      <height>18</height>
     </rect>
    </property>
+   <widget class="QMenu" name="inventoryMenu">
+    <property name="title">
+     <string>&amp;Inventori</string>
+    </property>
+    <addaction name="manageProductsAction"/>
+   </widget>
+   <addaction name="inventoryMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="manageProductsAction">
+   <property name="text">
+    <string>&amp;Produk</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
