@@ -617,6 +617,7 @@ bool ProductEditor::eventFilter(QObject *object, QEvent *event)
         if (event->type() == QEvent::KeyRelease) {
             QKeyEvent* e = static_cast<QKeyEvent*>(event);
             if (e->key() == Qt::Key_Delete) {
+                if (QMessageBox::question(0, "Konfirmasi", "Hapus satuan?", "&Ya", "&Tidak"))
                 uomModel->removeItemAt(ui->uomTableView->currentIndex().row());
                 return true;
             }
@@ -626,6 +627,7 @@ bool ProductEditor::eventFilter(QObject *object, QEvent *event)
         if (event->type() == QEvent::KeyRelease) {
             QKeyEvent* e = static_cast<QKeyEvent*>(event);
             if (e->key() == Qt::Key_Delete) {
+                if (QMessageBox::question(0, "Konfirmasi", "Hapus harga?", "&Ya", "&Tidak"))
                 priceModel->removeItemAt(ui->priceTableView->currentIndex().row());
                 return true;
             }
