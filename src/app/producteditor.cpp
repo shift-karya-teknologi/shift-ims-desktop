@@ -13,6 +13,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QTimer>
 
 class ProductEditor::UomModel : public QAbstractTableModel
 {
@@ -168,7 +169,12 @@ public:
                     return false;
             }
 
-            /// TODO: validasi duplikat
+            for (Item &tmp: items) {
+                if (&tmp == &item)
+                    continue;
+                if (tmp.name.toLower() == lcaseName)
+                    return false;
+            }
 
             if (item.isNull() && index.row() < MaxCount - 1) {
                 beginInsertRows(QModelIndex(), index.row() + 1, index.row() + 1);
@@ -185,7 +191,6 @@ public:
             return true;
         }
         else if (index.column() == 1) {
-            /// TODO: validasi kwantitas
             quint64 quantity = value.value<quint64>();
             if (!quantity) return false;
             item.quantity = quantity;
@@ -501,12 +506,24 @@ ProductEditor::ProductEditor(QWidget *parent)
     duplicateAction->setEnabled(false);
     connect(duplicateAction, SIGNAL(triggered(bool)), SLOT(onDuplicateActionTriggered()));
 
+    toolBar->addSeparator();
+
     removeAction = toolBar->addAction("Hapus");
     removeAction->setEnabled(false);
     connect(removeAction, SIGNAL(triggered(bool)), SLOT(remove()));
 
     mainFrame = new QFrame(this);
     ui->setupUi(mainFrame);
+
+    ui->typeComboBox->addItem(Product::typeString(Product::Type::Stocked), Product::Type::Stocked);
+    ui->typeComboBox->addItem(Product::typeString(Product::Type::NonStocked), Product::Type::NonStocked);
+    ui->typeComboBox->addItem(Product::typeString(Product::Type::Service), Product::Type::Service);
+    ui->typeComboBox->setCurrentIndex(ui->typeComboBox->findData(Product::Type::Stocked));
+
+    ui->costingMethodComboBox->addItem(Product::costingMethodString(Product::CostingMethod::Manual), Product::CostingMethod::Manual);
+    ui->costingMethodComboBox->addItem(Product::costingMethodString(Product::CostingMethod::Average), Product::CostingMethod::Average);
+    ui->costingMethodComboBox->addItem(Product::costingMethodString(Product::CostingMethod::Last), Product::CostingMethod::Last);
+    ui->costingMethodComboBox->setCurrentIndex(ui->costingMethodComboBox->findData(Product::CostingMethod::Average));
 
     connect(ui->baseUomEdit, SIGNAL(textEdited(QString)), uomModel, SLOT(updateBaseUom(QString)));
 
@@ -523,6 +540,9 @@ ProductEditor::ProductEditor(QWidget *parent)
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolBar);
     mainLayout->addWidget(mainFrame);
+
+    setWindowTitle("Produk Baru");
+    QTimer::singleShot(0, ui->nameEdit, SLOT(setFocus()));
 }
 
 ProductEditor::~ProductEditor()
@@ -548,18 +568,18 @@ bool ProductEditor::load(quint16 productId) {
     if (type >= 200)
         return false;
 
-    QString productCode = QString("P-%1").arg(id, 5, 10, QChar('0'));
+    QString productCode = Product::formatCode(id);
     QString baseUom = q.value("baseUom").toString();
 
     ui->idEdit->setText(productCode);
     ui->nameEdit->setText(q.value("name").toString());
-    ui->typeComboBox->setCurrentIndex(type);
+    ui->typeComboBox->setCurrentIndex(ui->typeComboBox->findData(type));
     ui->statusComboBox->setCurrentIndex(q.value("active").toBool());
     uomModel->load(id);
     ui->baseUomEdit->setText(baseUom);
     uomModel->updateBaseUom(baseUom);
     priceModel->load(id);
-    ui->costingMethodComboBox->setCurrentIndex(q.value("costingMethod").toInt());
+    ui->costingMethodComboBox->setCurrentIndex(ui->costingMethodComboBox->findData(q.value("costingMethod").toInt()));
     ui->manualCostEdit->setText(QLocale().toString(q.value("manualCost").toULongLong()));
     ui->averageCostEdit->setText(QLocale().toString(q.value("averageCost").toULongLong()));
     ui->lastPurchaseCostEdit->setText(QLocale().toString(q.value("lastPurchaseCost").toULongLong()));
@@ -586,6 +606,9 @@ bool ProductEditor::duplicateFrom(quint16 productId)
     ui->idEdit->clear();
     duplicateAction->setEnabled(false);
     removeAction->setEnabled(false);
+
+    QTimer::singleShot(0, ui->nameEdit, SLOT(setFocus()));
+    QTimer::singleShot(0, ui->nameEdit, SLOT(selectAll()));
 
     return true;
 }
@@ -621,14 +644,45 @@ void ProductEditor::save()
 
     bool isNewRecord = id == 0;
     QString name = ui->nameEdit->text().trimmed();
-    quint8 type = ui->typeComboBox->currentIndex();
+    quint8 type = ui->typeComboBox->currentData().toInt();
     bool active = ui->statusComboBox->currentIndex();
     QString baseUom = ui->baseUomEdit->text().trimmed();
-    quint8 costingMethod = ui->costingMethodComboBox->currentIndex();
+    quint8 costingMethod = ui->costingMethodComboBox->currentData().toInt();
     int cost = 0;
     int manualCost = QLocale().toInt(ui->manualCostEdit->text());
     int averageCost = QLocale().toInt(ui->averageCostEdit->text());
     int lastPurchaseCost = QLocale().toInt(ui->lastPurchaseCostEdit->text());
+
+    if (name.isEmpty()) {
+        ui->nameEdit->setFocus();
+        QMessageBox::warning(0, "Peringatan", "Nama produk harus diisi!");
+        return;
+    }
+
+    if (isNewRecord) {
+        q.prepare("select count(0) from products where name=?");
+        q.bindValue(0, name);
+    }
+    else {
+        q.prepare("select count(0) from products where name=? and id<>?");
+        q.bindValue(0, name);
+        q.bindValue(1, id);
+    }
+    q.exec();
+    q.next();
+    if (q.value(0).toInt() > 0) {
+        ui->nameEdit->setFocus();
+        ui->nameEdit->selectAll();
+        QMessageBox::warning(0, "Peringatan", "Nama produk sudah digunakan!");
+        return;
+    }
+    q.clear();
+
+    if (baseUom.isEmpty()) {
+        ui->baseUomEdit->setFocus();
+        QMessageBox::warning(0, "Peringatan", "Nama satuan dasar harus diisi!");
+        return;
+    }
 
     switch (costingMethod) {
     case Product::CostingMethod::Manual:
@@ -682,7 +736,7 @@ void ProductEditor::save()
 
     if (id == 0) {
         id = q.lastInsertId().value<quint16>();
-        QString idText = QString("P-%1").arg(id, 5, 10, QChar('0'));
+        QString idText = Product::formatCode(id);
         setWindowTitle(idText);
         ui->idEdit->setText(idText);
     }

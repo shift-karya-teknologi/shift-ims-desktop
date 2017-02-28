@@ -20,7 +20,9 @@ public:
         Last,
     };
 
+    static QString costingMethodString(CostingMethod type);
     static QString typeString(Type type);
+    static QString formatCode(quint16 id);
 };
 
 

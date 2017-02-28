@@ -53,8 +53,8 @@ void ProductManagerWidget::closeAllTabs()
 void ProductManagerWidget::newProduct()
 {
     ProductEditor *editor = new ProductEditor(_editorsTabWidget);
-    handleEditorSignals(editor);
     setupTab(editor);
+    handleEditorSignals(editor);
 }
 
 void ProductManagerWidget::duplicateProduct(quint16 fromId)
@@ -65,8 +65,8 @@ void ProductManagerWidget::duplicateProduct(quint16 fromId)
         return;
     }
 
-    handleEditorSignals(editor);
     setupTab(editor);
+    handleEditorSignals(editor);
 }
 
 void ProductManagerWidget::editProduct(quint16 id)
@@ -84,11 +84,9 @@ void ProductManagerWidget::editProduct(quint16 id)
         return;
     }
 
-    handleEditorSignals(editor);
-
     _editorByIds.insert(id, editor);
-
     setupTab(editor);
+    handleEditorSignals(editor);
 }
 
 void ProductManagerWidget::setupTab(QWidget* widget)

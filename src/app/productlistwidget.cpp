@@ -1,4 +1,5 @@
 #include "productlistwidget.h"
+#include "product.h"
 
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
@@ -101,7 +102,7 @@ public:
 public slots:
     bool refresh()
     {
-        QSqlQuery q("select id, name, type, active from products", QSqlDatabase::database());
+        QSqlQuery q("select id, name, type, active from products where type <= 200", QSqlDatabase::database());
         if (!q.exec()) {
             qDebug() << "SQL ERROR:" << qPrintable(q.lastError().text());
             return false;
@@ -115,7 +116,7 @@ public slots:
             item.name = q.value("name").toString();
             item.type = q.value("type").value<quint8>();
             item.active = q.value("active").toBool();
-            item.code = QString("P-%1").arg(item.id, 5, 10, QChar('0'));
+            item.code = Product::formatCode(item.id);
             items << item;
         }
         endResetModel();
